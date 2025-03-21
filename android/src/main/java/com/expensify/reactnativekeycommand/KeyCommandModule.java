@@ -15,7 +15,6 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 
 import android.view.KeyEvent;
-import android.util.Log;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -47,7 +46,6 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
     }
 
     public void onKeyDownEvent(int keyCode, KeyEvent keyEvent) {
-        Log.d("KeyCommand","KeyCommand "+keyCode);
         if (!reactContext.hasActiveCatalystInstance()) {
             return;
         }
@@ -70,6 +68,9 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
          * - {input: 'f'}
          * - {input: '123'}
          */
+        if(commandsArray.isEmpty()){
+            return true;
+        }
         for (ReadableMap registeredCommand : commandsArray) {
             int registeredCommandModifierFlags = registeredCommand.hasKey("modifierFlags") ? registeredCommand.getInt("modifierFlags") : 0;
             int commandModifierFlags = command.hasKey("modifierFlags") ? command.getInt("modifierFlags") : 0;
@@ -82,7 +83,7 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
             }
         }
 
-        return true;
+        return false;
     }
 
     private WritableMap getJsEventParams(int keyCode, KeyEvent keyEvent, Integer repeatCount) {
@@ -106,7 +107,7 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
             modifierFlags = KeyEvent.META_SHIFT_MASK;
         }
 
-        int inputKeyCode = keyEvent.getKeyCode();
+        int inputKeyCode = 0;
         if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ESCAPE) {
             inputKeyCode = KeyEvent.KEYCODE_ESCAPE;
         }
@@ -126,8 +127,6 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
             inputKeyCode = KeyEvent.KEYCODE_ENTER;
         }
 
-
-
         /**
          * Handle an event where an input (e.g. ESC) is pressed that has no display label
          */
@@ -135,14 +134,15 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
         String displayLabel = String.valueOf(keyEvent.getDisplayLabel())
             .replaceAll("[^A-Za-z0-9]", "")
             .toLowerCase();
-        // if (!displayLabel.isEmpty()) {
-        //     input = displayLabel;
-        // }
+        if (!displayLabel.isEmpty()) {
+            input = displayLabel;
+        }
         if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER && keyEvent.isCtrlPressed()) {
             input = Integer.toString(KeyEvent.KEYCODE_ENTER);
             modifierFlags = KeyEvent.META_CTRL_MASK;
         }
 
+        params.putInt("keyCode",keyCode);
         params.putInt("modifierFlags", modifierFlags);
         params.putString("input", input);
 
