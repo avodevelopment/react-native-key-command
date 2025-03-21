@@ -15,6 +15,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 
 import android.view.KeyEvent;
+import android.util.Log;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
     }
 
     public void onKeyDownEvent(int keyCode, KeyEvent keyEvent) {
+        Log.d("KeyCommand","KeyCommand "+keyCode);
         if (!reactContext.hasActiveCatalystInstance()) {
             return;
         }
@@ -80,7 +82,7 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
             }
         }
 
-        return false;
+        return true;
     }
 
     private WritableMap getJsEventParams(int keyCode, KeyEvent keyEvent, Integer repeatCount) {
@@ -104,7 +106,7 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
             modifierFlags = KeyEvent.META_SHIFT_MASK;
         }
 
-        int inputKeyCode = 0;
+        int inputKeyCode = keyEvent.getKeyCode();
         if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ESCAPE) {
             inputKeyCode = KeyEvent.KEYCODE_ESCAPE;
         }
@@ -124,6 +126,8 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
             inputKeyCode = KeyEvent.KEYCODE_ENTER;
         }
 
+
+
         /**
          * Handle an event where an input (e.g. ESC) is pressed that has no display label
          */
@@ -131,9 +135,9 @@ public class KeyCommandModule extends ReactContextBaseJavaModule {
         String displayLabel = String.valueOf(keyEvent.getDisplayLabel())
             .replaceAll("[^A-Za-z0-9]", "")
             .toLowerCase();
-        if (!displayLabel.isEmpty()) {
-            input = displayLabel;
-        }
+        // if (!displayLabel.isEmpty()) {
+        //     input = displayLabel;
+        // }
         if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER && keyEvent.isCtrlPressed()) {
             input = Integer.toString(KeyEvent.KEYCODE_ENTER);
             modifierFlags = KeyEvent.META_CTRL_MASK;
